@@ -9,10 +9,10 @@ This project was developed on windows 10 with Anaconda, jupyter notebook install
 * glob
 
 ## 1. Image Process Pipeline
-<img src="img/PipeLine_1.JPG" width = "600"/>  
+<img src="img/PipeLine_1.JPG" width = "800"/>  
 
 ## 2. Image Pre-Process Pipeline
-<img src="img/PipeLine_2.JPG" width = "600"/>  
+<img src="img/PipeLine_2.JPG" width = "800"/>  
 
 ### 2.1 Camera Calibration  
 The purpose of camera calibration is to eliminate to image distortion caused by
@@ -23,30 +23,33 @@ Chessboard is introduced here for performing calibration. By applying
 'cv2.findChessboardCorners', precise corner position can be pinpointed.
 This function requires input of number of points in each row and column. For
 example, image below has 9 points each low and 6 points each column.  
-<img src="img/Pic_2_1.JPG" width = "400"/>
+<img src="img/Pic_2_1.JPG" width = "600"/>  
 It is also essential to obtain destination point indices before calculating
 reverse-distortion matrix. Function *cv2.calibrateCamera* calculates matrices
 for undistortion. Last step is cv2.undistort to undistort raw image.  
-<img src="img/Pic_2_2.JPG" width = "600"/>
-<img src="img/Pic_2_3.JPG" width = "600"/>
+<img src="img/Pic_2_2.JPG" width = "800"/>
+
+<img src="img/Pic_2_3.JPG" width = "800"/>
 
 ### 2.2 Pixel Selection
 #### 2.2.1 Sobel
 Multiple methods are candidates for keeping image Pixels. Instead of general
 Canny edge detection, Sobel methods can provide gray scale derivative in
 specific situation.  
-<img src="img/Pic_2_4.JPG" width = "600"/>
+<img src="img/Pic_2_4.JPG" width = "800"/>
 
 #### 2.2.2 HLS Color Space
 In addition to Sobel, HLS color space is also taking into consideration that it
-provide useful information regardless strength of lightness.
-<img src="img/Pic_2_5.JPG" width = "600"/>
+provide useful information regardless strength of lightness.  
+
+<img src="img/Pic_2_5.JPG" width = "800"/>
 
 #### 2.2.3 HLS_S Channel and Sobel X
 After examining results multiple methods, binary images filtered from HLS s
 channel and from sobel absolute x can provide distinctive lane pixels. Final
 decision is to add up these images together for preserve maximum points data
 for polynomial calculation.  
+
 <img src="img/Pic_2_6.png" width = "600"/>
 
 ### 2.3 Perspective Transformation
@@ -60,42 +63,42 @@ Input data used here is absolute sobel x, whose capability of providing lane
 contour can create decisive straight line.  
 
 #### 2.3.1 Left and Right side ROI
-<img src="img/Pic_2_7_Left_Roi.png" width = "300"/>  <img src="img/Pic_2_8_Right_Roi.png" width = "300"/>
+<img src="img/Pic_2_7_Left_Roi.png" width = "400"/>  <img src="img/Pic_2_8_Right_Roi.png" width = "400"/>  
 Right and left region of interest are separately picked to keep the function’s line
 number as small as possible. Function Get_Source_Points(Binary_image,
 mask_points, top_y_coornate) performs HoughLinesP averaging line and
 extrapolate line to calculate end points.  
 
 #### 2.3.2 DST Points Selection
-<img src="img/Pic_2_9_Dst.png" width = "600"/>
+<img src="img/Pic_2_9_Dst.JPG" width = "600"/>  
 In image above green polygon shows four source points at four corners.
 Easiest way is to use red intersections as upper part destination points.
 Perspective transformation result is shown in next page.  
 
 #### 2.3.3 Perspective Transformation
 Now src and dst data are available, transformation matrix can be access by:
-M = cv2.getPerspectiveTransform(src, dst) , switch src and dst, inverse
+"M = cv2.getPerspectiveTransform(src, dst)" , switch src and dst, inverse
 transformation matrix is also calculated.
-Inv_M = cv2.getPerspectiveTransform(dst, src)
+"Inv_M = cv2.getPerspectiveTransform(dst, src)"
 To warp an image, use following function:
-output = cv2.warpPerspective( img, M, (width , height ) )  
+"output = cv2.warpPerspective( img, M, (width , height ) )"
 
 #### 2.3.3.1 Transformation result
-<img src="img/Pic_2_10_warp.png" width = "700"/>
+<img src="img/Pic_2_10_warp.png" width = "800"/>
 Figure above shows transformation result on straight lane, both left and right
 lane lines are shown clearly in the picture. However, when testing this on curve,
 as shown in picture below, a large portion of right hand side lane is not
 included. This will lead to problems while collecting pixels.  
-<img src="img/Pic_2_11_warp2.png" width = "700"/>
+<img src="img/Pic_2_11_warp2.JPG" width = "800"/>
 A little tweak on dst points can successfully address this issue. Below are
 original and modified code.
-'''
+ ''' 
 src = np.float32([ left_up, right_up, right_down, left_down, ])
 dst = np.float32([ [left_down [0] ,0 ],
 [right_down[0] ,0],
 [right_down[0] , right_down[1]],
 [left_down[0] , left_down[1]] ])
-'''
+ ''' 
   
 '''
 offset = 150
@@ -109,10 +112,10 @@ dst = np.float32([ [left_down [0] + offset ,0 ],
 
 Warp image with offset dst points is show in the next page. Right lane line
 which is previous excluded is now inside image.
-<img src="img/Pic_2_12_warp3.png" width = "700"/>
+<img src="img/Pic_2_12_warp3.JPG" width = "700"/>
 
 ## 3. Lane Detection
-<img src="img/Pic_3_1.JPG" width = "600"/>
+<img src="img/Pic_3_1.JPG" width = "800"/>
 
 ### 3.1 Sliding Window
 As show in the chart above, if a new image goes through lane detection
