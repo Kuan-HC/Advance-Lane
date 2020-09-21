@@ -77,11 +77,11 @@ Perspective transformation result is shown in next page.
 
 #### 2.3.3 Perspective Transformation
 Now src and dst data are available, transformation matrix can be access by:
-"M = cv2.getPerspectiveTransform(src, dst)" , switch src and dst, inverse
+``M = cv2.getPerspectiveTransform(src, dst)`` , switch src and dst, inverse
 transformation matrix is also calculated.
-"Inv_M = cv2.getPerspectiveTransform(dst, src)"
+``Inv_M = cv2.getPerspectiveTransform(dst, src)``
 To warp an image, use following function:
-"output = cv2.warpPerspective( img, M, (width , height ) )"
+``output = cv2.warpPerspective( img, M, (width , height ) )``
 
 #### 2.3.3.1 Transformation result
 <img src="img/Pic_2_10_warp.png" width = "800"/>
@@ -91,24 +91,27 @@ as shown in picture below, a large portion of right hand side lane is not
 included. This will lead to problems while collecting pixels.  
 <img src="img/Pic_2_11_warp2.JPG" width = "800"/>
 A little tweak on dst points can successfully address this issue. Below are
-original and modified code.
- ''' 
+original and modified code. 
+
+##### Originel:
+```
 src = np.float32([ left_up, right_up, right_down, left_down, ])
 dst = np.float32([ [left_down [0] ,0 ],
-[right_down[0] ,0],
-[right_down[0] , right_down[1]],
-[left_down[0] , left_down[1]] ])
- ''' 
-  
-'''
+                   [right_down[0] ,0],
+                   [right_down[0] , right_down[1]],
+                   [left_down[0] , left_down[1]] ])
+
+```  
+##### Modified
+```
 offset = 150
 src = np.float32([ left_up, right_up, right_down, left_down, ])
 dst = np.float32([ [left_down [0] + offset ,0 ],
-[right_down[0] - offset ,0 ],
-[right_down[0] – offset , right_down[1]],
-[left_down [0] + offset , left_down[1]] ])
+                   [right_down[0] - offset ,0 ],
+                   [right_down[0] – offset , right_down[1]],
+                   [left_down [0] + offset , left_down[1]] ])
 
-'''
+```
 
 Warp image with offset dst points is show in the next page. Right lane line
 which is previous excluded is now inside image.
@@ -123,23 +126,23 @@ algorithm, this image will be convolved and then the peak is where the most
 likely position for the lane marker  
 
 First version of convolve algorithm is like introduced in lesson as shown below:  
-'''
+```
 l_center = np.argmax(conv_signal[l_min_index:l_max_index])+l_min_index-offset
-'''
+```
 Visualized output is shown in next page.  
-<img src="img/Pic_3_2_window.JPG" width = "600"/>
+<img src="img/Pic_3_2_window.JPG" width = "600"/>  
 While zero points are undergone convolve, next center output subtract offset
 nevertheless. It’s more reasonable to presume the next center x location
 remains the same since most lane line is continuous.  
 Here, a threshold and condition are added to code.  
-'''
+```
 if conv_signal[np.argmax(conv_signal[l_min_index:l_max_index])+l_min_index]
 <= thresh:
 l_center = l_center
 else:
 l_center =
 np.argmax(conv_signal[l_min_index:l_max_index])+l_min_index-offset
-'''
+```
 Visualized output is shown below.  
 <img src="img/Pic_3_3_window.JPG" width = "600"/>
 
